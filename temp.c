@@ -8,64 +8,70 @@ extern "C" void matrixBegin();
 // Each digit occupies 6 columns (6x8). Columns are vertical bytes, index 0..5.
 const uint8_t DIGITS[10][6] = {
     // 0
-    { 0xF0, 0x01, 0x41, 0x90, 0x12, 0x02 },
+    { 0x7E, 0x81, 0x81, 0x81, 0x81, 0x7E },
     // 1
-    { 0xC0, 0x01, 0x41, 0x90, 0x02, 0x02 },
+    { 0x00, 0x82, 0x82, 0xFF, 0x80, 0x80 },
     // 2
-    { 0xF0, 0x01, 0x41, 0x90, 0x02, 0x00 },
+    { 0xC2, 0xA1, 0x91, 0x89, 0x86, 0x00 },
     // 3
-    { 0xF0, 0x01, 0x41, 0x90, 0x12, 0x00 },
+    { 0x42, 0x81, 0x89, 0x89, 0x76, 0x00 },
     // 4
-    { 0x88, 0x00, 0x41, 0x90, 0xF2, 0x01 },
+    { 0x1F, 0x10, 0x10, 0xFF, 0x10, 0x10 },
     // 5
-    { 0xF0, 0x01, 0x41, 0x90, 0x10, 0x02 },
+    { 0x8F, 0x89, 0x89, 0x89, 0x71, 0x00 },
     // 6
-    { 0xF0, 0x01, 0x41, 0x90, 0x10, 0x02 },
+    { 0x7E, 0x89, 0x89, 0x89, 0x72, 0x00 },
     // 7
-    { 0xF0, 0x01, 0x41, 0x90, 0x02, 0x00 },
+    { 0x01, 0xE1, 0x11, 0x09, 0x07, 0x00 },
     // 8
-    { 0xF0, 0x01, 0x41, 0x90, 0x12, 0x02 },
+    { 0x76, 0x89, 0x89, 0x89, 0x76, 0x00 },
     // 9
-    { 0xF0, 0x01, 0x41, 0x90, 0x12, 0x02 }
+    { 0x4E, 0x91, 0x91, 0x91, 0x7E, 0x00 }
 };
 
-// Buffer to store the final display pattern as 13 vertical columns (each column = 8 bits)
-// Columns indexed 0..12 (13 columns). Each byte represents 8 vertical pixels.
-uint8_t displayCols[13] = {0};
+// Buffer to store the final display pattern as 4 rows of 32 bits
+// Each uint32_t represents one row of the display, bits go from left to right
+uint32_t displayRows[4] = {0};
 
-// Helper: get a single column byte from the explicit DIGITS table
-static inline uint8_t getDigitColumnByte(int digit, int colIndex) {
-    if (digit < 0 || digit >= 10) return 0;
-    if (colIndex < 0 || colIndex >= 6) return 0;
-    return DIGITS[digit][colIndex];
-}
-
-// Place a 6-column (6x8) digit into displayCols using logical OR.
-// Left digit -> columns 0..5, Right digit -> columns 7..12 (column 6 is gap).
-void displayDigit(int digit, bool isLeftDigit) {
-    int destOffset = isLeftDigit ? 0 : 7; // left: cols 0-5, right: cols 7-12
-    for (int c = 0; c < 6; ++c) {
-        uint8_t colByte = getDigitColumnByte(digit, c);
-        int dest = destOffset + c;
-        if (dest >= 0 && dest < 13) {
-            displayCols[dest] |= colByte; // OR - combine without overwriting
+// Convert vertical columns to horizontal rows for two digits
+void displayDigits(int leftDigit, int rightDigit) {
+    // Clear display buffer
+    for (int i = 0; i < 4; i++) {
+            displayRows[i] = 0;
+    }
+    
+    // Process left digit (first 6 columns)
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 6; col++) {
+            if (DIGITS[leftDigit][col] & (1 << row)) {
+                // Set bit in the appropriate row, shifting from left side
+                displayRows[row/2] |= 1UL << (31 - col - (row%2)*16);
+            }
         }
     }
+    
+    // Process right digit (last 6 columns, after 1 column gap)
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 6; col++) {
+            if (DIGITS[rightDigit][col] & (1 << row)) {
+                // Set bit in the appropriate row, shifting from left side
+                displayRows[row/2] |= 1UL << (31 - (col + 7) - (row%2)*16);
+            }
+        }
+    }
+    
+    // Write to the matrix
+    matrixWrite(displayRows);
+
 }
 
 void displayNumber(int number) {
     // Clear columns
     for (int i = 0; i < 13; ++i) displayCols[i] = 0;
 
-    if (number >= 10) {
         int tens = number / 10;
         int ones = number % 10;
-        displayDigit(tens, true);   // first 6 columns (0-5)
-        displayDigit(ones, false);  // last 6 columns (7-12)
-    } else {
-        // Single digit displayed on right side (columns 7-12)
-        displayDigit(number, false);
-    }
+        displayDigits(tens, ones);
 
     // Pack the 13 bytes into 4 uint32_t words (little-endian byte order)
     uint32_t packed[4] = {0, 0, 0, 0};
