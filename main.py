@@ -5,7 +5,7 @@ import requests
  
 
 def get_temperature():
-    api_key = "033e4af2c403c176f2a262ad63af4565 "
+    api_key = "033e4af2c403c176f2a262ad63af4565"
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {"q": "Neratovice", "appid": api_key}
 
