@@ -1,11 +1,11 @@
 
-from arduino.app_utils import *
+# from arduino.app_utils import *
 
 import requests
  
 
 def get_temperature():
-    api_key = "ea134c3b959845c1383c4125eb380b2f"
+    api_key = "033e4af2c403c176f2a262ad63af4565 "
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {"q": "Neratovice", "appid": api_key}
 
@@ -29,8 +29,10 @@ def get_temperature():
   
     return temp_c
 
+if __name__ == "__main__":
+    temperature = get_temperature()
+    print(f"Temperature in Neratovice: {temperature}°C")
 
-# Allow the microcontroller to call the "get_air_quality" function to show AQI level on led matrix
-Bridge.provide("get_temperature", get_temperature)
+# Bridge.provide("get_temperature", get_temperature)
 
-App.run()
+# App.run()
