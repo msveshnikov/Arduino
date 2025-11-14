@@ -27,12 +27,13 @@ This project aims to create a highly interactive, autonomous robot utilizing the
 | :--- | :--- | :--- | :--- |
 | **Microcontroller** | Arduino Uno Q | Transition to Raspberry Pi (e.g., Pi 5 or Zero 2 W) or equivalent SBC | Offload Python processing, improve camera/audio stream handling, and provide local processing capability. |
 | **Motor Control** | Integrated with Uno Q | Dedicated Motor Driver Shield (e.g., L298N or specialized drivers) | Better current handling, precision control, and separation of logic/power circuits. |
-| **Sensors** | Camera only | Add LiDAR/Ultrasonic sensors, IMU (Accelerometer/Gyroscope) | Enable robust spatial awareness, obstacle avoidance, and precise movement/pose tracking. |
+| **Sensing/Navigation** | USB Camera only | Integrate IMU (Accelerometer/Gyroscope) and Proximity Sensors (Ultrasonic/LiDAR) | Enable robust spatial awareness, obstacle avoidance, and precise movement/pose tracking. |
+| **Physical Structure** | N/A (Assumed generic) | Custom 3D Printed Chassis | Modular housing for components, better stability, and improved aesthetics for component housing. |
 | **Power Management** | Single PowerBank | Integrated Power Distribution Board (PDB) with voltage regulation | Ensure stable power for SBC, motors, and peripherals; implement low-power warning system. |
 
 ### 2. Software Architecture and Code Structure
 
-The current structure suggests foundational C code (`music.c`, `starwars.c`, `temp.c`) likely handling low-level motor or peripheral control, while `main.py` handles the high-level logic and API interaction.
+The project currently uses foundational C code (`music.c`, `starwars.c`, `temp.c`) for low-level tasks, while `main.py` handles high-level logic and API interaction.
 
 *   **Refactor C Code:** Consolidate low-level hardware interaction (motor control, sensor reading) into a dedicated library (e.g., `hardware_interface.c`) callable by Python via `ctypes` or similar bindings.
 *   **Python Logic (`main.py`):**
@@ -42,11 +43,12 @@ The current structure suggests foundational C code (`music.c`, `starwars.c`, `te
 
 ### 3. Interaction and Autonomy Features
 
-*   **Multi-Modal Interaction:** Beyond simple command/response, implement context memory for longer, more meaningful conversations.
-*   **Environmental Mapping:** Integrate Simultaneous Localization and Mapping (SLAM) capabilities (if transitioning to an SBC) to allow the robot to navigate and remember its environment.
+*   **Actuation:** Introduce one manipulator arm (e.g., 2-3 DOF) for basic physical object interaction, manipulation, and demonstration.
+*   **Multi-Modal Interaction:** Beyond simple command/response, implement context memory for longer, more meaningful conversations that persist across interactions.
+*   **Environmental Mapping:** Integrate Simultaneous Localization and Mapping (SLAM) capabilities (if transitioning to an SBC) to allow the robot to navigate and remember its environment structure.
 *   **Task Execution:** Design a robust system for handling complex, multi-step instructions (e.g., "Go to the kitchen and report if the coffee machine is on").
 
 ### 4. Project Development Setup
 
 *   **Dependency Management:** Utilize a `requirements.txt` file for explicit Python dependency tracking.
-*   **Development Environment:** Expand the `.vscode/settings.json` to include linting (e.g., Black, Pylint) and debugging configurations for easier collaboration and development.
+*   **Development Environment:** Expand the `.vscode/settings.json` to include linting (e.g., Black, Pylint) and debugging configurations for easier collaboration and development setup.
