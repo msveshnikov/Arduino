@@ -307,8 +307,13 @@ void displayNumber(int num)
                ((val & 0x08) >> 2) | ((val & 0x10) >> 4);
     };
 
-    uint32_t row0 = reverseBits5(digits[tens][0] & 0x1F) | (reverseBits5(digits[ones][0] & 0x1F) << 6);
-    uint32_t row1 = reverseBits5(digits[tens][1] & 0x1F) | (reverseBits5(digits[ones][1] & 0x1F) << 6);
+    // Celsius degree symbol (small circle at top right)
+    // Position: bit 11 (rightmost area)
+    uint32_t celsiusRow0 = 0x03 << 11; // 11
+    uint32_t celsiusRow1 = 0x03 << 11; // 11
+
+    uint32_t row0 = reverseBits5(digits[tens][0] & 0x1F) | (reverseBits5(digits[ones][0] & 0x1F) << 6) | celsiusRow0;
+    uint32_t row1 = reverseBits5(digits[tens][1] & 0x1F) | (reverseBits5(digits[ones][1] & 0x1F) << 6) | celsiusRow1;
     uint32_t row2 = reverseBits5(digits[tens][2] & 0x1F) | (reverseBits5(digits[ones][2] & 0x1F) << 6);
     uint32_t row3 = reverseBits5(digits[tens][3] & 0x1F) | (reverseBits5(digits[ones][3] & 0x1F) << 6);
     uint32_t row4 = reverseBits5(digits[tens][4] & 0x1F) | (reverseBits5(digits[ones][4] & 0x1F) << 6);
