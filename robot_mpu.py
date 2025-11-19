@@ -40,7 +40,7 @@ class RobotBrain:
             return
         
         genai.configure(api_key=GEMINI_API_KEY)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-robotics-er-1.5-preview')
         self.chat = self.model.start_chat(history=[])
         
         self.system_prompt = """
